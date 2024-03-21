@@ -126,6 +126,7 @@ public class A3 {
       // to the tree ordered by word frequency.
 
       // All words in the original tree must be added to tree ordered by word length
+
    }
 
    /* Calculate the average length of words stored the wordsByNaturalOrder tree */
@@ -136,7 +137,11 @@ public class A3 {
 
    /* Remove stop words from the tree. */
    private void removeStop() {
-      // TODO:
+      for (String stopWord : stopwords) {
+         Token stopToken = new Token(stopWord);
+         wordsByNaturalOrder.delete(stopToken);
+         stopwordcount++;
+      }
    }
 
    /*

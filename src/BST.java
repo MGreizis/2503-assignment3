@@ -9,14 +9,12 @@ public class BST<T extends Comparable<T>> implements Iterable<T> {
 	private Comparator<T> comparator;
 
 	public BST() {
-		// TODO Auto-generated method stub
 		// Create a new BST using the natural ordering of T.
 		this.root = null;
 		this.comparator = null;
 	}
 
 	public BST(Comparator<T> c) {
-		// TODO Auto-generated method stub
 		// Create a new BST using the ordering determined by c
 		this.root = null;
 		this.comparator = c;
@@ -69,23 +67,19 @@ public class BST<T extends Comparable<T>> implements Iterable<T> {
 	}
 
 	public int size() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public int height() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		// TODO Auto-generated method stub
 		return new BSTIterator<>(root);
 	}
 
 	public T min() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

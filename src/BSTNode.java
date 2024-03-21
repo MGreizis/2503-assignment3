@@ -13,7 +13,7 @@ public class BSTNode<T extends Comparable<T>> {
       return data;
    }
 
-   public void setData() {
+   public void setData(T data) {
       this.data = data;
    }
 

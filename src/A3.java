@@ -58,6 +58,13 @@ public class A3 {
        * Use an iterator to traverse the wordsByFreqDesc in-order, and print the first
        * 10
        */
+      Iterator<Token> freqIterator = wordsByFreqDesc.iterator();
+      int count = 0;
+      while (freqIterator.hasNext() && count < 10) {
+         Token token = freqIterator.next();
+         System.out.println(token.getWord() + ": " + token.getCount());
+         count++;
+      }
 
       System.out.println();
       System.out.println("10 Longest");
@@ -67,6 +74,13 @@ public class A3 {
        * Use an iterator to traverse the wordsByLength in-order, and print the first
        * 10
        */
+      Iterator<Token> lengthIterator = wordsByLength.iterator();
+      count = 0;
+      while (lengthIterator.hasNext() && count < 10) {
+         Token token = lengthIterator.next();
+         System.out.println(token.getWord() + ": " + token.getLength());
+         count++;
+      }
 
       System.out.println();
       System.out.println("The longest word is " + wordsByLength.min());
@@ -79,6 +93,11 @@ public class A3 {
        * Use an iterator to traverse the wordsByNaturalOrder in-order, and print all
        * elements in the tree
        */
+      Iterator<Token> iterator = wordsByNaturalOrder.iterator();
+      while (iterator.hasNext()) {
+         Token token = iterator.next();
+         System.out.println(token.getWord());
+      }
 
       System.out.println();
 
@@ -109,6 +128,8 @@ public class A3 {
             // Create a new token object, if not already in the wordsByNaturalOrder,
             // add the token to the BST, otherwise, increase the frequency count of the
             // object already in the tree.
+
+            // !! Will probably be fucked
             Token token = new Token(word);
             wordsByNaturalOrder.insert(token);
             totalwordcount++;
@@ -118,21 +139,28 @@ public class A3 {
 
    /* Create the frequency and length lists. */
    private void createFreqLists() {
-      // TODO:
-      // Use your implementation of the iterator interface
-      // for the BST class.
-
-      // Make sure you only only add words that have occurred more than twice
-      // to the tree ordered by word frequency.
-
-      // All words in the original tree must be added to tree ordered by word length
-
+      Iterator<Token> iterator = wordsByNaturalOrder.iterator();
+      while (iterator.hasNext()) {
+         Token token = iterator.next();
+         if (token.getCount() >= 3) {
+            wordsByFreqDesc.insert(token);
+         }
+         wordsByLength.insert(token);
+      }
    }
 
    /* Calculate the average length of words stored the wordsByNaturalOrder tree */
    private int avgLength() {
-      // TODO:
-      return 0;
+      int totalLength = 0;
+      int wordCount = 0;
+      Iterator<Token> iterator = wordsByNaturalOrder.iterator();
+      while (iterator.hasNext()) {
+         Token token = iterator.next();
+         totalLength += token.getLength() * token.getCount();
+         wordCount += token.getCount();
+      }
+
+      return wordCount > 0 ? totalLength / wordCount : 0;
    }
 
    /* Remove stop words from the tree. */

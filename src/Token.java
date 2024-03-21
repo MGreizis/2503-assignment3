@@ -60,8 +60,14 @@ public class Token implements Comparable<Token> {
    public static Comparator<Token> CompLengthDesc = new Comparator<Token>() {
 
       public int compare(Token w1, Token w2) {
-         // TODO:
-         return 0;
+         int len1 = w1.getLength();
+         int len2 = w2.getLength();
+
+         if (len1 == len2) {
+            return w1.getWord().compareTo(w2.getWord());
+         }
+
+         return len2 - len1;
       }
    };
 

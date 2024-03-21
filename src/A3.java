@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 import java.util.Iterator;
 
@@ -110,6 +109,9 @@ public class A3 {
             // Create a new token object, if not already in the wordsByNaturalOrder,
             // add the token to the BST, otherwise, increase the frequency count of the
             // object already in the tree.
+            Token token = new Token(word);
+            wordsByNaturalOrder.insert(token);
+            totalwordcount++;
          }
       }
    }

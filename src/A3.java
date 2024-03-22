@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -20,7 +21,7 @@ public class A3 {
     */
    private BST<Token> wordsByNaturalOrder = new BST<Token>();
    private BST<Token> wordsByFreqDesc = new BST<Token>(Token.CompFreqDesc);
-   private BST<Token> wordsByLength = new BST<Token>(Token.CompLengthDesc);
+   private BST<Token> wordsByLength = new BST<Token>(new TokenLengthComparator());
 
    // there are 103 stopwords in this list
    private String[] stopwords = {
@@ -51,90 +52,115 @@ public class A3 {
       System.out.println("Unique Words: " + wordsByNaturalOrder.size());
       System.out.println("Stop Words: " + stopwordcount);
       System.out.println();
+
       System.out.println("10 Most Frequent");
-
-      /*
-       * TODO:
-       * Use an iterator to traverse the wordsByFreqDesc in-order, and print the first
-       * 10
-       */
-      Iterator<Token> freqIterator = wordsByFreqDesc.iterator();
-      int count = 0;
-      while (freqIterator.hasNext() && count < 10) {
-         Token token = freqIterator.next();
-         System.out.println(token.getWord() + ": " + token.getCount());
-         count++;
-      }
-
+      printTopWords(wordsByFreqDesc, 10);
       System.out.println();
+
       System.out.println("10 Longest");
-
-      /*
-       * TODO:
-       * Use an iterator to traverse the wordsByLength in-order, and print the first
-       * 10
-       */
-      Iterator<Token> lengthIterator = wordsByLength.iterator();
-      count = 0;
-      while (lengthIterator.hasNext() && count < 10) {
-         Token token = lengthIterator.next();
-         System.out.println(token.getWord() + ": " + token.getLength());
-         count++;
-      }
-
+      printTopWords(wordsByLength, 10);
       System.out.println();
-      System.out.println("The longest word is " + wordsByLength.min());
+
+      Token longestWord = findLongestWord();
+      System.out.println("The longest word is " + longestWord + " : " + longestWord.getCount());
       System.out.println("The average word length is " + avgLength());
       System.out.println();
-      System.out.println("All");
 
-      /*
-       * TODO:
-       * Use an iterator to traverse the wordsByNaturalOrder in-order, and print all
-       * elements in the tree
-       */
+      System.out.println("All");
       Iterator<Token> iterator = wordsByNaturalOrder.iterator();
       while (iterator.hasNext()) {
          Token token = iterator.next();
-         System.out.println(token.getWord());
+         System.out.println(token.getWord() + " : " + token.getLength() + " : " + token.getCount());
       }
-
       System.out.println();
 
-      System.out.println("Alphabetic Tree: (Optimum Height: " +
-            optHeight(wordsByNaturalOrder.size()) + ") (Actual Height: "
-            + wordsByNaturalOrder.height() + ")");
-      System.out.println("Frequency Tree: (Optimum Height: " +
-            optHeight(wordsByFreqDesc.size()) + ") (Actual Height: "
-            + wordsByFreqDesc.height() + ")");
-      System.out.println("Length Tree: (Optimum Height: " +
-            optHeight(wordsByLength.size()) + ") (Actual Height: "
-            + wordsByLength.height() + ")");
+      printTreeHeightStatistics("Alphabetic Tree", wordsByNaturalOrder);
+      printTreeHeightStatistics("Frequency Tree", wordsByFreqDesc);
+      printTreeHeightStatistics("Length Tree", wordsByLength);
    }
 
-   /*
-    * Read the file and add words to the list/tree.
+   /**
+    * Finds the longest word in the collection of words by length.
+    *
+    * @return the longest word in the collection, or null if the collection is
+    *         empty
     */
-   private void readFile() {
-      // some starter code for this method is provided:
-
-      while (inp.hasNext()) {
-         // get the next word, convert to lower case, strip out blanks and non
-         // alphabetic characters.
-         String word = inp.next().toLowerCase().trim().replaceAll("[^a-z]", "");
-
-         if (word.length() > 0) {
-            // TODO:
-            // Create a new token object, if not already in the wordsByNaturalOrder,
-            // add the token to the BST, otherwise, increase the frequency count of the
-            // object already in the tree.
-
-            // !! Will probably be fucked
-            Token token = new Token(word);
-            wordsByNaturalOrder.insert(token);
-            totalwordcount++;
+   private Token findLongestWord() {
+      Token longestWord = null;
+      int maxLength = 0;
+      Iterator<Token> iterator = wordsByLength.iterator();
+      while (iterator.hasNext()) {
+         Token token = iterator.next();
+         if (token.getLength() > maxLength) {
+            longestWord = token;
+            maxLength = token.getLength();
          }
       }
+      return longestWord;
+   }
+
+   /**
+    * Reads a file and processes each word in it.
+    *
+    * @param None
+    * @return None
+    */
+   private void readFile() {
+      while (inp.hasNext()) {
+         String word = inp.next().toLowerCase().trim().replaceAll("[^a-z]", "");
+         if (word.length() > 0) {
+            totalwordcount++;
+            if (!isStopWord(word)) {
+               Token newToken = new Token(word);
+               BSTNode<Token> existingNode = wordsByNaturalOrder.find(newToken);
+               if (existingNode != null) {
+                  existingNode.getData().incrCount();
+               } else {
+                  wordsByNaturalOrder.insert(newToken);
+                  wordsByFreqDesc.insert(newToken);
+                  wordsByLength.insert(newToken);
+               }
+            }
+         }
+      }
+   }
+
+   /**
+    * Checks if the given word is a stop word.
+    *
+    * @param word the word to be checked
+    * @return true if the word is a stop word, false otherwise
+    */
+   private boolean isStopWord(String word) {
+      for (String stopWord : stopwords) {
+         if (stopWord.equals(word)) {
+            stopwordcount++; // Increment stop words count
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * A description of the entire Java function.
+    *
+    * @param bst   description of parameter
+    * @param count description of parameter
+    * @return description of return value
+    */
+   private void printTopWords(BST<Token> bst, int count) {
+      Iterator<Token> iterator = bst.iterator();
+      int printed = 0;
+      while (iterator.hasNext() && printed < count) {
+         Token token = iterator.next();
+         System.out.println(token.getWord() + " : " + token.getLength() + " : " + token.getCount());
+         printed++;
+      }
+   }
+
+   private void printTreeHeightStatistics(String treeName, BST<Token> bst) {
+      System.out.println(treeName + ": (Optimum Height: " +
+            optHeight(bst.size()) + ") (Actual Height: " + bst.height() + ")");
    }
 
    /* Create the frequency and length lists. */
@@ -167,8 +193,10 @@ public class A3 {
    private void removeStop() {
       for (String stopWord : stopwords) {
          Token stopToken = new Token(stopWord);
-         wordsByNaturalOrder.delete(stopToken);
-         stopwordcount++;
+         BSTNode<Token> existingNode = wordsByNaturalOrder.find(stopToken);
+         if (existingNode != null) {
+            wordsByNaturalOrder.delete(existingNode.getData());
+         }
       }
    }
 
@@ -184,11 +212,32 @@ public class A3 {
          return (int) Math.round(h);
    }
 
+   private class TokenLengthComparator implements Comparator<Token> {
+      /**
+       * Compares two tokens based on their length and word.
+       *
+       * @param token1 the first token to compare
+       * @param token2 the second token to compare
+       * @return a negative integer, zero, or a positive integer as the first token is
+       *         less than, equal to, or greater than the second
+       */
+      @Override
+      public int compare(Token token1, Token token2) {
+         int lengthCompare = Integer.compare(token2.getLength(), token1.getLength());
+
+         if (lengthCompare != 0) {
+            return lengthCompare;
+         } else {
+            return token1.getWord().compareTo(token2.getWord());
+         }
+      }
+   }
+
    /* Run the program. */
    private void run() {
       readFile();
-      removeStop();
       createFreqLists();
+      removeStop();
       printResults();
    }
 }

@@ -11,7 +11,7 @@ public class BST<T extends Comparable<T>> implements Iterable<T> {
    public BST() {
       // Create a new BST using the natural ordering of T.
       this.root = null;
-      this.comparator = null;
+      this.comparator = (a, b) -> a.compareTo(b);
    }
 
    public BST(Comparator<T> c) {
@@ -99,6 +99,26 @@ public class BST<T extends Comparable<T>> implements Iterable<T> {
       }
    }
 
+   public BSTNode<T> find(T data) {
+      return findRec(root, data);
+   }
+
+   private BSTNode<T> findRec(BSTNode<T> node, T data) {
+      if (node == null || data == null) {
+         return null;
+      }
+
+      int cmp = compare(data, node.getData());
+
+      if (cmp == 0) {
+         return node;
+      } else if (cmp < 0) {
+         return findRec(node.getLeft(), data);
+      } else {
+         return findRec(node.getRight(), data);
+      }
+   }
+
    /**
     * Returns the size of the binary search tree by recursively counting the number
     * of nodes in the tree.
@@ -160,6 +180,22 @@ public class BST<T extends Comparable<T>> implements Iterable<T> {
       return minNode;
    }
 
+   public T max() {
+      if (root == null) {
+         return null;
+      }
+      BSTNode<T> currentNode = root;
+      while (currentNode.getRight() != null) {
+         currentNode = currentNode.getRight();
+      }
+      return currentNode.getData();
+   }
+
+   /**
+    * Deletes a node from the binary search tree.
+    *
+    * @param data the data to be deleted
+    */
    public void delete(T data) {
       root = deleteRec(root, root.getData());
    }
